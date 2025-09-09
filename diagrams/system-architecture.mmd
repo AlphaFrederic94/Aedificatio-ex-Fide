@@ -1,0 +1,117 @@
+graph TB
+    subgraph "Frontend Layer"
+        A[Next.js 15 Frontend]
+        A1[React Components]
+        A2[Radix UI Components]
+        A3[Tailwind CSS]
+        A4[TypeScript]
+        A5[Authentication Context]
+        A6[Form Handling - React Hook Form]
+        
+        A --> A1
+        A --> A2
+        A --> A3
+        A --> A4
+        A --> A5
+        A --> A6
+    end
+    
+    subgraph "API Layer"
+        B[Next.js API Routes]
+        B1[/api/auth]
+        B2[/api/students]
+        B3[/api/teachers]
+        B4[/api/classes]
+        B5[/api/assignments]
+        B6[/api/attendance]
+        B7[/api/messages]
+        B8[/api/reports]
+        
+        B --> B1
+        B --> B2
+        B --> B3
+        B --> B4
+        B --> B5
+        B --> B6
+        B --> B7
+        B --> B8
+    end
+    
+    subgraph "Backend Server"
+        C[Express.js Server]
+        C1[Authentication Module]
+        C2[Students Module]
+        C3[Teachers Module]
+        C4[Classes Module]
+        C5[Assignments Module]
+        C6[Attendance Module]
+        C7[Messages Module]
+        C8[Audit/Blockchain Module]
+        C9[Enrollments Module]
+        
+        C --> C1
+        C --> C2
+        C --> C3
+        C --> C4
+        C --> C5
+        C --> C6
+        C --> C7
+        C --> C8
+        C --> C9
+    end
+    
+    subgraph "Data Layer"
+        D[PostgreSQL Database]
+        D1[Prisma ORM]
+        D2[Database Migrations]
+        D3[Seed Data]
+        
+        D --> D1
+        D --> D2
+        D --> D3
+    end
+    
+    subgraph "Security & Auth"
+        E[JWT Tokens - JOSE]
+        E1[Argon2 Password Hashing]
+        E2[Role-Based Access Control]
+        E3[School-Based Data Isolation]
+        
+        E --> E1
+        E --> E2
+        E --> E3
+    end
+    
+    subgraph "Audit & Compliance"
+        F[Blockchain Audit Trail]
+        F1[SHA-256 Hashing]
+        F2[Immutable Records]
+        F3[Chain Verification]
+        
+        F --> F1
+        F --> F2
+        F --> F3
+    end
+    
+    subgraph "Testing"
+        G[Vitest Testing Framework]
+        G1[Unit Tests]
+        G2[Integration Tests]
+        G3[API Tests]
+        
+        G --> G1
+        G --> G2
+        G --> G3
+    end
+    
+    A -.->|HTTP Requests| B
+    B -.->|API Calls| C
+    C -.->|Database Queries| D
+    C1 -.->|Authentication| E
+    C8 -.->|Audit Logging| F
+    C -.->|Testing| G
+    
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style D fill:#e8f5e8
+    style F fill:#fff3e0

@@ -1,0 +1,183 @@
+erDiagram
+    School {
+        string id PK
+        string name
+        string slug UK
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    User {
+        string id PK
+        string email UK
+        string password
+        string name
+        enum role
+        string schoolId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Student {
+        string id PK
+        string userId FK
+        string schoolId FK
+        string firstName
+        string lastName
+        string email UK
+        string grade
+        datetime dateOfBirth
+        datetime enrollmentDate
+        enum status
+        string parentName
+        string parentEmail
+        string parentPhone
+        string address
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+    
+    Teacher {
+        string id PK
+        string userId FK
+        string schoolId FK
+        string firstName
+        string lastName
+        string email UK
+        string phone
+        string department
+        string subject
+        datetime hireDate
+        enum status
+        string qualification
+        int experience
+        string address
+        string emergencyContact
+        string emergencyPhone
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+    
+    Class {
+        string id PK
+        string schoolId FK
+        string name
+        string subject
+        string grade
+        string teacherId FK
+        string teacherName
+        string room
+        string schedule
+        datetime startDate
+        datetime endDate
+        string description
+        int capacity
+        enum status
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+    
+    Enrollment {
+        string id PK
+        string studentId FK
+        string classId FK
+        datetime createdAt
+    }
+    
+    Attendance {
+        string id PK
+        string classId FK
+        string studentId FK
+        datetime date
+        enum status
+        string note
+        string recordedById FK
+        datetime createdAt
+    }
+    
+    Assignment {
+        string id PK
+        string classId FK
+        string teacherId FK
+        string title
+        string description
+        datetime dueDate
+        int maxPoints
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+    
+    Submission {
+        string id PK
+        string assignmentId FK
+        string studentId FK
+        string content
+        json attachments
+        datetime submittedAt
+        float grade
+        string feedback
+        datetime gradedAt
+    }
+    
+    Grade {
+        string id PK
+        string assignmentId FK
+        string studentId FK
+        float score
+        string feedback
+        datetime gradedAt
+    }
+    
+    Message {
+        string id PK
+        string senderId FK
+        string recipientId FK
+        string subject
+        string content
+        boolean isRead
+        boolean isStarred
+        boolean isArchived
+        boolean flaggedToAdmin
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+    
+    AuditBlock {
+        string id PK
+        int index
+        string prevHash
+        json data
+        datetime timestamp
+        string hash
+    }
+    
+    School ||--o{ User : "belongs to"
+    School ||--o{ Student : "has"
+    School ||--o{ Teacher : "employs"
+    School ||--o{ Class : "offers"
+    
+    User ||--o| Student : "can be"
+    User ||--|| Teacher : "can be"
+    User ||--o{ Message : "sends"
+    User ||--o{ Message : "receives"
+    
+    Student ||--o{ Enrollment : "enrolls in"
+    Student ||--o{ Attendance : "has"
+    Student ||--o{ Submission : "submits"
+    Student ||--o{ Grade : "receives"
+    
+    Teacher ||--o{ Class : "teaches"
+    Teacher ||--o{ Assignment : "creates"
+    Teacher ||--o{ Attendance : "records"
+    
+    Class ||--o{ Enrollment : "has"
+    Class ||--o{ Attendance : "tracks"
+    Class ||--o{ Assignment : "contains"
+    
+    Assignment ||--o{ Submission : "receives"
+    Assignment ||--o{ Grade : "has"

@@ -1,0 +1,137 @@
+graph TB
+    subgraph "Audit Events Sources"
+        A1[User Authentication]
+        A2[Student CRUD Operations]
+        A3[Teacher CRUD Operations]
+        A4[Class Management]
+        A5[Assignment Operations]
+        A6[Attendance Recording]
+        A7[Grade Submissions]
+        A8[Message Exchanges]
+        A9[Enrollment Changes]
+    end
+    
+    subgraph "Audit Data Structure"
+        B[AuditData Interface]
+        B1[action: string]
+        B2[actorId: string]
+        B3[entity: string]
+        B4[entityId?: string]
+        B5[payload?: unknown]
+        
+        B --> B1
+        B --> B2
+        B --> B3
+        B --> B4
+        B --> B5
+    end
+    
+    subgraph "Block Structure"
+        C[Block Interface]
+        C1[index: number]
+        C2[prevHash: string]
+        C3[data: AuditData]
+        C4[timestamp: number]
+        C5[hash: string]
+        
+        C --> C1
+        C --> C2
+        C --> C3
+        C --> C4
+        C --> C5
+    end
+    
+    subgraph "Hash Computation"
+        D[SHA-256 Hash Function]
+        D1[Input: index + prevHash + data + timestamp]
+        D2[JSON.stringify for serialization]
+        D3[crypto.createHash SHA-256]
+        D4[Output: 64-character hex string]
+        
+        D --> D1
+        D --> D2
+        D --> D3
+        D --> D4
+    end
+    
+    subgraph "Blockchain Operations"
+        E[Blockchain Service]
+        E1[getLatestBlock]
+        E2[appendBlock]
+        E3[verifyChain]
+        E4[computeHash]
+        
+        E --> E1
+        E --> E2
+        E --> E3
+        E --> E4
+    end
+    
+    subgraph "Database Storage"
+        F[AuditBlock Table]
+        F1[id: String PK]
+        F2[index: Int]
+        F3[prevHash: String]
+        F4[data: Json]
+        F5[timestamp: DateTime]
+        F6[hash: String]
+        
+        F --> F1
+        F --> F2
+        F --> F3
+        F --> F4
+        F --> F5
+        F --> F6
+    end
+    
+    subgraph "Chain Integrity"
+        G[Verification Process]
+        G1[Sequential Block Validation]
+        G2[Hash Recalculation]
+        G3[Previous Hash Linking]
+        G4[Tamper Detection]
+        
+        G --> G1
+        G --> G2
+        G --> G3
+        G --> G4
+    end
+    
+    subgraph "Genesis Block"
+        H[First Block]
+        H1[index: 0]
+        H2[prevHash: GENESIS]
+        H3[Initial System State]
+        
+        H --> H1
+        H --> H2
+        H --> H3
+    end
+    
+    A1 --> B
+    A2 --> B
+    A3 --> B
+    A4 --> B
+    A5 --> B
+    A6 --> B
+    A7 --> B
+    A8 --> B
+    A9 --> B
+    
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    H --> F
+    
+    E2 -.->|Creates New Block| F
+    E1 -.->|Retrieves Latest| F
+    E3 -.->|Validates Chain| G
+    
+    style B fill:#e3f2fd
+    style C fill:#f3e5f5
+    style D fill:#e8f5e8
+    style F fill:#fff3e0
+    style G fill:#fce4ec
+    style H fill:#f1f8e9
