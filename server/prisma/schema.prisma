@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  users     User[]
+  students  Student[]
+  teachers  Teacher[]
+
+  classes   Class[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String  @id @default(cuid())
+  email     String  @unique
+  password  String
+  name      String
+  role      Role
+  school    School? @relation(fields: [schoolId], references: [id])
+  schoolId  String?
+  student   Student?
+  teacher   Teacher?
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  admin
+  teacher
+  student
+}
+
+model Student {
+  id             String   @id @default(cuid())
+  user           User?    @relation(fields: [userId], references: [id])
+  userId         String?  @unique
+  school         School?  @relation(fields: [schoolId], references: [id])
+  schoolId       String?
+  firstName      String
+  lastName       String
+  email          String   @unique
+  grade          String
+  dateOfBirth    DateTime
+  enrollmentDate DateTime
+  status         StudentStatus @default(active)
+  parentName     String
+  parentEmail    String
+  parentPhone    String
+  address        String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  enrollments    Enrollment[]
+  attendances    Attendance[]
+  grades         Grade[]
+  submissions    Submission[]
+}
+
+enum StudentStatus {
+  active
+  inactive
+  graduated
+}
+
+model Teacher {
+  id               String   @id @default(cuid())
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String   @unique
+  school           School?  @relation(fields: [schoolId], references: [id])
+  schoolId         String?
+  firstName        String
+  lastName         String
+  email            String   @unique
+  phone            String
+  department       String
+  subject          String
+  hireDate         DateTime
+  status           TeacherStatus @default(active)
+  qualification    String
+  experience       Int
+  address          String
+  emergencyContact String
+  emergencyPhone   String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+  classes          Class[]
+  attendanceRecorded Attendance[] @relation("TeacherRecordedAttendance")
+  assignments        Assignment[]
+}
+
+enum TeacherStatus {
+  active
+  inactive
+  on_leave
+}
+
+model Class {
+  id               String   @id @default(cuid())
+  school           School?  @relation(fields: [schoolId], references: [id])
+  schoolId         String?
+  name             String
+  subject          String
+  grade            String
+  teacher          Teacher  @relation(fields: [teacherId], references: [id])
+  teacherId        String
+  teacherName      String
+  room             String
+  schedule         String
+  startDate        DateTime
+  endDate          DateTime
+  description      String
+  capacity         Int
+  status           ClassStatus @default(active)
+  enrolledStudents Enrollment[]
+  attendances      Attendance[]
+  assignments      Assignment[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+}
+
+enum ClassStatus {
+  active
+  inactive
+}
+
+model Enrollment {
+  id        String  @id @default(cuid())
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   String
+  createdAt DateTime @default(now())
+}
+
+// Track attendance per class per date
+model Attendance {
+  id         String   @id @default(cuid())
+  class      Class    @relation(fields: [classId], references: [id])
+  classId    String
+  student    Student  @relation(fields: [studentId], references: [id])
+  studentId  String
+  date       DateTime
+  status     AttendanceStatus
+  note       String?
+  recordedBy Teacher? @relation("TeacherRecordedAttendance", fields: [recordedById], references: [id])
+  recordedById String?
+  createdAt  DateTime @default(now())
+
+  @@unique([classId, studentId, date])
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+// Assignments for classes
+model Assignment {
+  id          String       @id @default(cuid())
+  class       Class        @relation(fields: [classId], references: [id])
+  classId     String
+  teacher     Teacher?     @relation(fields: [teacherId], references: [id])
+  teacherId   String?
+  title       String
+  description String
+  dueDate     DateTime
+  maxPoints   Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  grades      Grade[]
+  submissions Submission[]
+}
+
+// Student submissions for assignments
+model Submission {
+  id           String     @id @default(cuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      Student    @relation(fields: [studentId], references: [id])
+  studentId    String
+  content      String
+  attachments  Json?      // Array of file URLs/paths
+  submittedAt  DateTime   @default(now())
+  grade        Float?
+  feedback     String?
+  gradedAt     DateTime?
+
+  @@unique([assignmentId, studentId])
+}
+
+// Messages between users
+model Message {
+  id          String    @id @default(cuid())
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  senderId    String
+  recipient   User      @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  recipientId String
+  subject     String
+  content     String
+  isRead      Boolean   @default(false)
+  isStarred   Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  flaggedToAdmin Boolean @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+// Grades per assignment per student
+model Grade {
+  id           String     @id @default(cuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      Student    @relation(fields: [studentId], references: [id])
+  studentId    String
+  score        Float
+  feedback     String?
+  gradedAt     DateTime @default(now())
+
+  @@unique([assignmentId, studentId])
+}
+
+// Lightweight blockchain for audit
+model AuditBlock {
+  id         String   @id @default(cuid())
+  index      Int
+  prevHash   String
+  data       Json
+  timestamp  DateTime @default(now())
+  hash       String
+}
+
