@@ -48,13 +48,23 @@ export function SignupForm() {
     }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
 
-      // For demo purposes, redirect to login
-      router.push("/login?message=Account created successfully! Please sign in.")
+      const data = await response.json()
+
+      if (response.ok) {
+        // Signup successful, redirect to login
+        router.push("/login?message=Account created successfully! Please sign in.")
+      } else {
+        // Handle specific error messages from the server
+        setError(data.error || "Failed to create account. Please try again.")
+      }
     } catch (err) {
-      setError("Failed to create account. Please try again.")
+      setError("Failed to connect to server. Please try again.")
     } finally {
       setIsLoading(false)
     }

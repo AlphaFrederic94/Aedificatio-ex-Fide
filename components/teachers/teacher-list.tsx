@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Plus, Search, Edit, Trash2, Users } from "lucide-react"
 import type { Teacher } from "@/types/teacher"
 import { TeacherForm } from "./teacher-form"
+import { useAuth } from "@/contexts/auth-context"
 
 export function TeacherList() {
   const [teachers, setTeachers] = useState<Teacher[]>([])
@@ -20,6 +21,7 @@ export function TeacherList() {
   const [showForm, setShowForm] = useState(false)
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null)
   const [loading, setLoading] = useState(true)
+  const { getAuthHeaders } = useAuth()
 
   useEffect(() => {
     fetchTeachers()
@@ -31,12 +33,8 @@ export function TeacherList() {
 
   const fetchTeachers = async () => {
     try {
-      const token = localStorage.getItem("token")
       const response = await fetch("/api/teachers", {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
       })
 
       if (!response.ok) {
