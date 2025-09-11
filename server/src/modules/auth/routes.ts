@@ -23,14 +23,22 @@ authRouter.post('/', async (req, res) => {
     schoolId: user.schoolId,
   }
 
-  // Attach domain extras
+  // Attach domain extras - CRITICAL for permissions
   if (user.role === 'student') {
     const s = await prisma.student.findUnique({ where: { userId: user.id } })
-    Object.assign(payload, { studentId: s?.id, grade: s?.grade })
+    if (s) {
+      Object.assign(payload, { studentId: s.id, grade: s.grade })
+    } else {
+      console.error(`Student profile not found for user ${user.id}`)
+    }
   }
   if (user.role === 'teacher') {
     const t = await prisma.teacher.findUnique({ where: { userId: user.id } })
-    Object.assign(payload, { teacherId: t?.id, department: t?.department })
+    if (t) {
+      Object.assign(payload, { teacherId: t.id, department: t.department })
+    } else {
+      console.error(`Teacher profile not found for user ${user.id}`)
+    }
   }
 
   const token = await signToken(payload)

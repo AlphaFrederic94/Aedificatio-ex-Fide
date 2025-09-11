@@ -26,7 +26,7 @@ export async function signToken(payload: JwtUserPayload) {
 export async function verifyToken(token: string): Promise<JwtUserPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret)
-    return payload as JwtUserPayload
+    return payload as unknown as JwtUserPayload
   } catch {
     return null
   }

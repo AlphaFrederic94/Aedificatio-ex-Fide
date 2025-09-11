@@ -20,6 +20,12 @@ import { assignmentsRouter } from '../modules/assignments/routes'
 appRouter.use('/assignments', assignmentsRouter)
 import { messagesRouter } from '../modules/messages/routes'
 appRouter.use('/messages', messagesRouter)
+import { submissionsRouter } from '../modules/submissions/routes'
+appRouter.use('/submissions', submissionsRouter)
+import examsRouter from '../modules/exams/routes'
+appRouter.use('/exams', examsRouter)
+import examSubmissionsRouter from '../modules/exam-submissions/routes'
+appRouter.use('/exam-submissions', examSubmissionsRouter)
 
 
 

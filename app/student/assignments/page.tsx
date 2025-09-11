@@ -1,5 +1,5 @@
 import { StudentLayout } from "@/components/layout/student-layout"
-import { UpcomingAssignments } from "@/components/student/upcoming-assignments"
+import { AssignmentViewer } from "@/components/student/assignment-viewer"
 
 export default function StudentAssignmentsPage() {
   return (
@@ -8,10 +8,10 @@ export default function StudentAssignmentsPage() {
         <div>
           <h1 className="text-3xl font-bold">My Assignments</h1>
           <p className="text-muted-foreground mt-2">
-            View upcoming assignments, track deadlines, and submit your work.
+            View, submit, and track your assignments across all courses.
           </p>
         </div>
-        <UpcomingAssignments />
+        <AssignmentViewer />
       </div>
     </StudentLayout>
   )

@@ -26,7 +26,8 @@ const teacherNavItems = [
   { href: "/teacher/classes", icon: BookOpen, label: "My Classes" },
   { href: "/teacher/students", icon: Users, label: "My Students" },
   { href: "/teacher/attendance", icon: ClipboardCheck, label: "Attendance" },
-  { href: "/teacher/grades", icon: FileText, label: "Grades" },
+  { href: "/teacher/exams", icon: FileText, label: "Exams" },
+  { href: "/teacher/grades", icon: GraduationCap, label: "Grades" },
   { href: "/teacher/schedule", icon: Calendar, label: "Schedule" },
   { href: "/teacher/messages", icon: MessageSquare, label: "Messages" },
 ]

@@ -127,7 +127,7 @@ export function TeacherList() {
       return []
     }
 
-    const departments = Array.from(new Set(teachers.map((t) => t.department)))
+    const departments = Array.from(new Set(teachers.map((t) => t.department).filter(dept => dept && dept.trim() !== '')))
     return departments.sort()
   }
 

@@ -19,6 +19,7 @@ import {
   BarChart3,
   Calendar,
   MessageSquare,
+  CheckCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -27,6 +28,7 @@ const adminNavItems = [
   { href: "/admin/students", icon: Users, label: "Students" },
   { href: "/admin/teachers", icon: GraduationCap, label: "Teachers" },
   { href: "/admin/classes", icon: BookOpen, label: "Classes" },
+  { href: "/admin/class-approvals", icon: CheckCircle, label: "Class Approvals" },
   { href: "/admin/reports", icon: BarChart3, label: "Reports" },
   { href: "/admin/schedule", icon: Calendar, label: "Schedule" },
   { href: "/admin/messages", icon: MessageSquare, label: "Messages" },

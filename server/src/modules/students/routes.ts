@@ -11,6 +11,34 @@ studentsRouter.get('/', requireRole(['admin', 'teacher']), async (req, res) => {
   res.json(students)
 })
 
+// Get specific student (students can access their own data)
+studentsRouter.get('/:id', requireRole(['admin', 'teacher', 'student']), async (req, res) => {
+  const { id } = req.params
+  const user = (req as any).user
+
+  // Students can only access their own data
+  if (user.role === 'student' && user.studentId !== id) {
+    return res.status(403).json({ error: 'Insufficient permissions' })
+  }
+
+  try {
+    const student = await studentRepo.getById(id)
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' })
+    }
+
+    // Ensure student belongs to same school
+    if (user.role !== 'admin' && student.schoolId !== user.schoolId) {
+      return res.status(403).json({ error: 'Insufficient permissions' })
+    }
+
+    res.json(student)
+  } catch (error) {
+    console.error('Get student error:', error)
+    res.status(500).json({ error: 'Failed to get student' })
+  }
+})
+
 studentsRouter.post('/', requireRole(['admin']), async (req, res) => {
   const data = req.body
   const schoolId = (req as any).user.schoolId
@@ -48,11 +76,7 @@ studentsRouter.post('/', requireRole(['admin']), async (req, res) => {
   res.status(201).json(created)
 })
 
-studentsRouter.get('/:id', requireRole(['admin', 'teacher']), async (req, res) => {
-  const s = await studentRepo.getById(req.params.id)
-  if (!s) return res.status(404).json({ error: 'Student not found' })
-  res.json(s)
-})
+
 
 studentsRouter.put('/:id', requireRole(['admin']), async (req, res) => {
   const d = req.body || {}

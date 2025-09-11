@@ -61,10 +61,15 @@ assignmentsRouter.get('/', requireRole(['admin', 'teacher', 'student']), async (
 // Create assignment (teachers only)
 assignmentsRouter.post('/', requireRole(['teacher']), async (req, res) => {
   const { title, description, classId, dueDate, maxPoints } = req.body || {}
-  const teacherId = (req as any).user.id
+  const user = (req as any).user
+  const teacherId = user.teacherId // Use teacherId from JWT token, not user.id
 
   if (!title || !classId || !dueDate) {
     return res.status(400).json({ error: 'title, classId, and dueDate are required' })
+  }
+
+  if (!teacherId) {
+    return res.status(400).json({ error: 'Teacher profile not found' })
   }
 
   try {
@@ -89,7 +94,7 @@ assignmentsRouter.post('/', requireRole(['teacher']), async (req, res) => {
 
     await appendBlock({
       action: 'assignment.create',
-      actorId: teacherId,
+      actorId: user.id, // Use user.id for audit log
       entity: 'assignment',
       entityId: assignment.id,
       payload: { title, classId, dueDate }

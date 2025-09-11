@@ -5,8 +5,9 @@ import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Users, Clock, Calendar } from "lucide-react"
+import { BookOpen, Users, Clock, Calendar, Plus } from "lucide-react"
 import Link from "next/link"
+import { CreateClassDialog } from "./create-class-dialog"
 
 interface ClassInfo {
   id: string
@@ -24,6 +25,7 @@ export function MyClasses() {
   const { user, getAuthHeaders } = useAuth()
   const [classes, setClasses] = useState<ClassInfo[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
 
   useEffect(() => {
     const fetchMyClasses = async () => {
@@ -98,10 +100,16 @@ export function MyClasses() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5" />
-          My Classes
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            My Classes
+          </CardTitle>
+          <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Class
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {classes.length === 0 ? (
@@ -155,6 +163,16 @@ export function MyClasses() {
             ))}
           </div>
         )}
+
+        <CreateClassDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onClassCreated={() => {
+            // Refresh classes list
+            fetchClasses()
+            setShowCreateDialog(false)
+          }}
+        />
       </CardContent>
     </Card>
   )

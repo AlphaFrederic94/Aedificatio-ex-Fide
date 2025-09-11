@@ -8,8 +8,88 @@ export const classesRouter = Router()
 
 classesRouter.get('/', async (req, res) => {
   const schoolId = (req as any).user?.schoolId
-  const rows = schoolId ? await classRepo.listBySchool(schoolId) : await classRepo.list()
-  res.json(rows)
+  const user = (req as any).user
+
+  try {
+    let classes
+    if (schoolId) {
+      // Students can only see approved classes
+      if (user?.role === 'student') {
+        classes = await prisma.class.findMany({
+          where: {
+            schoolId,
+            status: { in: ['approved', 'active'] },
+            deletedAt: null
+          },
+          include: {
+            teacher: true,
+            _count: {
+              select: { enrolledStudents: true }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        })
+      } else {
+        // Teachers and admins can see all classes
+        classes = await classRepo.listBySchool(schoolId)
+      }
+    } else {
+      classes = await classRepo.list()
+    }
+
+    res.json(classes)
+  } catch (error) {
+    console.error('Get classes error:', error)
+    res.status(500).json({ error: 'Failed to get classes' })
+  }
+})
+
+// Approve/reject a class (admin only)
+classesRouter.patch('/:id/status', requireRole(['admin']), async (req, res) => {
+  const { id } = req.params
+  const { status } = req.body
+  const user = (req as any).user
+
+  if (!['approved', 'rejected', 'active', 'inactive'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' })
+  }
+
+  try {
+    const existingClass = await prisma.class.findUnique({ where: { id } })
+    if (!existingClass) {
+      return res.status(404).json({ error: 'Class not found' })
+    }
+
+    // Ensure class belongs to same school
+    if (existingClass.schoolId !== user.schoolId) {
+      return res.status(403).json({ error: 'Insufficient permissions' })
+    }
+
+    const updatedClass = await prisma.class.update({
+      where: { id },
+      data: { status },
+      include: {
+        teacher: true,
+        _count: {
+          select: { enrolledStudents: true }
+        }
+      }
+    })
+
+    // Log the approval/rejection
+    await appendBlock({
+      action: `class_${status}`,
+      entity: 'class',
+      entityId: id,
+      actorId: user.id,
+      payload: { classId: id, status, previousStatus: existingClass.status }
+    })
+
+    res.json(updatedClass)
+  } catch (error) {
+    console.error('Update class status error:', error)
+    res.status(500).json({ error: 'Failed to update class status' })
+  }
 })
 
 classesRouter.post('/', requireRole(['admin']), async (req, res) => {

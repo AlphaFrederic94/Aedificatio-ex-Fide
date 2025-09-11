@@ -66,6 +66,7 @@ model Student {
   attendances    Attendance[]
   grades         Grade[]
   submissions    Submission[]
+  examSubmissions ExamSubmission[]
 }
 
 enum StudentStatus {
@@ -99,6 +100,7 @@ model Teacher {
   classes          Class[]
   attendanceRecorded Attendance[] @relation("TeacherRecordedAttendance")
   assignments        Assignment[]
+  exams              Exam[]
 }
 
 enum TeacherStatus {
@@ -123,16 +125,20 @@ model Class {
   endDate          DateTime
   description      String
   capacity         Int
-  status           ClassStatus @default(active)
+  status           ClassStatus @default(pending)
   enrolledStudents Enrollment[]
   attendances      Attendance[]
   assignments      Assignment[]
+  exams            Exam[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   deletedAt        DateTime?
 }
 
 enum ClassStatus {
+  pending
+  approved
+  rejected
   active
   inactive
 }
@@ -235,6 +241,123 @@ model Grade {
   gradedAt     DateTime @default(now())
 
   @@unique([assignmentId, studentId])
+}
+
+// Exam System Models
+model Exam {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  class       Class      @relation(fields: [classId], references: [id])
+  classId     String
+  teacher     Teacher    @relation(fields: [teacherId], references: [id])
+  teacherId   String
+
+  // Exam Configuration
+  examType    ExamType   @default(MIXED)
+  duration    Int        // Duration in minutes
+  totalMarks  Int        @default(0)
+  passingMarks Int       @default(0)
+
+  // Scheduling
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean    @default(true)
+
+  // Questions and Submissions
+  questions   Question[]
+  submissions ExamSubmission[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum ExamType {
+  MCQ         // Multiple Choice Questions only
+  STRUCTURAL  // Essay/Structural questions only
+  MIXED       // Both MCQ and Structural
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  exam        Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examId      String
+
+  // Question Details
+  questionText String
+  questionType QuestionType
+  marks       Int          @default(1)
+  order       Int          // Order of question in exam
+
+  // MCQ Specific Fields
+  optionA     String?
+  optionB     String?
+  optionC     String?
+  optionD     String?
+  correctAnswer String?    // For MCQ: A, B, C, or D
+
+  // Structural Question Fields
+  maxWords    Int?         // Maximum word limit for structural questions
+
+  // Student Answers
+  answers     StudentAnswer[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum QuestionType {
+  MCQ
+  STRUCTURAL
+}
+
+model ExamSubmission {
+  id          String    @id @default(cuid())
+  exam        Exam      @relation(fields: [examId], references: [id])
+  examId      String
+  student     Student   @relation(fields: [studentId], references: [id])
+  studentId   String
+
+  // Submission Details
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  isSubmitted Boolean   @default(false)
+
+  // Scoring
+  totalScore  Int       @default(0)
+  mcqScore    Int       @default(0)
+  structuralScore Int   @default(0)
+  isGraded    Boolean   @default(false)
+
+  // Student Answers
+  answers     StudentAnswer[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([examId, studentId])
+}
+
+model StudentAnswer {
+  id           String         @id @default(cuid())
+  question     Question       @relation(fields: [questionId], references: [id])
+  questionId   String
+  submission   ExamSubmission @relation(fields: [submissionId], references: [id])
+  submissionId String
+
+  // Answer Content
+  mcqAnswer    String?        // A, B, C, or D for MCQ
+  textAnswer   String?        // Text answer for structural questions
+
+  // Grading
+  isCorrect    Boolean?       // For MCQ - auto-graded
+  marksAwarded Int           @default(0)
+  feedback     String?        // Teacher feedback for structural questions
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([questionId, submissionId])
 }
 
 // Lightweight blockchain for audit

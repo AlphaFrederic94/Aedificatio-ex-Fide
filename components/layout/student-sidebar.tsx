@@ -24,8 +24,10 @@ import { cn } from "@/lib/utils"
 const studentNavItems = [
   { href: "/student", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/student/classes", icon: BookOpen, label: "My Classes" },
+  { href: "/student/enroll", icon: BookOpen, label: "Enroll in Courses" },
+  { href: "/student/exams", icon: FileText, label: "Exams & Activities" },
   { href: "/student/grades", icon: BarChart3, label: "Grades" },
-  { href: "/student/assignments", icon: FileText, label: "Assignments" },
+  { href: "/student/assignments", icon: GraduationCap, label: "Assignments" },
   { href: "/student/schedule", icon: Calendar, label: "Schedule" },
   { href: "/student/messages", icon: MessageSquare, label: "Messages" },
   { href: "/student/profile", icon: User, label: "Profile" },

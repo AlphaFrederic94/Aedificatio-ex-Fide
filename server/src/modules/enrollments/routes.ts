@@ -7,8 +7,35 @@ import { prisma } from '../../infrastructure/prisma/client'
 export const enrollmentsRouter = Router()
 
 // List enrollments for current school
-enrollmentsRouter.get('/', requireRole(['admin', 'teacher']), async (req, res) => {
+enrollmentsRouter.get('/', requireRole(['admin', 'teacher', 'student']), async (req, res) => {
   const schoolId = (req as any).user.schoolId
+  const user = (req as any).user
+
+  // Students can see their own enrollments without query parameter
+  if (user.role === 'student') {
+    if (!user.studentId) {
+      return res.status(400).json({ error: 'Student profile not found' })
+    }
+
+    try {
+      const rows = await prisma.enrollment.findMany({
+        where: { studentId: user.studentId },
+        include: {
+          class: {
+            include: {
+              teacher: true
+            }
+          }
+        }
+      })
+      return res.json(rows)
+    } catch (e) {
+      console.error('student enrollments error', e)
+      return res.status(500).json({ error: 'Failed to load enrollments' })
+    }
+  }
+
+  // Admin and teachers can see all enrollments in their school
   const rows = await enrollmentRepo.listBySchool(schoolId)
   res.json(rows)
 })
@@ -30,15 +57,28 @@ enrollmentsRouter.get('/student/:studentId', requireRole(['admin', 'teacher', 's
 })
 
 // Enroll a student into a class
-enrollmentsRouter.post('/', requireRole(['admin', 'teacher']), async (req, res) => {
+enrollmentsRouter.post('/', requireRole(['admin', 'teacher', 'student']), async (req, res) => {
   const { studentId, classId } = req.body || {}
-  const schoolId = (req as any).user.schoolId
+  const user = (req as any).user
+  const schoolId = user.schoolId
+
   if (!studentId || !classId) return res.status(400).json({ error: 'studentId and classId are required' })
+
+  // Students can only enroll themselves
+  if (user.role === 'student' && studentId !== user.studentId) {
+    return res.status(403).json({ error: 'Students can only enroll themselves' })
+  }
 
   const s = await studentRepo.getById(studentId)
   const c = await classRepo.getById(classId)
   if (!s || !c || s.schoolId !== schoolId || c.schoolId !== schoolId) {
     return res.status(400).json({ error: 'Student and Class must belong to your school' })
+  }
+
+  // Check if class is approved for student enrollment
+  const allowedStatuses = ['approved', 'active'];
+  if (user.role === 'student' && !allowedStatuses.includes(c.status as string)) {
+    return res.status(400).json({ error: 'This class is not yet available for enrollment' })
   }
 
   // Prevent duplicate enrollment
