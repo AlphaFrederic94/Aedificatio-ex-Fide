@@ -65,14 +65,14 @@ export default function ActivitiesFeed() {
   const fetchActivities = async () => {
     setIsLoading(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('auth-token')
       
       // Fetch exams, assignments, and grades in parallel
       const [examsRes, assignmentsRes] = await Promise.all([
-        fetch('/api/exams/student', {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exams/student`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('/api/assignments', {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/assignments`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ])

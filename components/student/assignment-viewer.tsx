@@ -111,7 +111,7 @@ export function AssignmentViewer() {
         })
 
         // Sort by due date
-        assignmentsWithDetails.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+        assignmentsWithDetails.sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
         setAssignments(assignmentsWithDetails)
       } catch (error) {

@@ -31,12 +31,12 @@ export function StatsCards() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("auth-token")
-      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined
 
       const [studentsRes, teachersRes, classesRes] = await Promise.all([
-        fetch("/api/students", { headers }),
-        fetch("/api/teachers", { headers }),
-        fetch("/api/classes", { headers }),
+        fetch("/api/students", headers ? { headers } : {}),
+        fetch("/api/teachers", headers ? { headers } : {}),
+        fetch("/api/classes", headers ? { headers } : {}),
       ])
 
       const students = studentsRes.ok ? await studentsRes.json() : []

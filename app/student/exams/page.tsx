@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ExamInterface from '@/components/student/exam-interface'
 import ActivitiesFeed from '@/components/student/activities-feed'
-import { FileText, Bell } from 'lucide-react'
+import ExamResults from '@/components/student/exam-results'
+import { FileText, Bell, Trophy } from 'lucide-react'
 
 export default function StudentExamsPage() {
   return (
@@ -15,10 +16,14 @@ export default function StudentExamsPage() {
       </div>
 
       <Tabs defaultValue="exams" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="exams" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Available Exams
+          </TabsTrigger>
+          <TabsTrigger value="results" className="flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            My Results
           </TabsTrigger>
           <TabsTrigger value="activities" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
@@ -28,6 +33,10 @@ export default function StudentExamsPage() {
 
         <TabsContent value="exams">
           <ExamInterface />
+        </TabsContent>
+
+        <TabsContent value="results">
+          <ExamResults />
         </TabsContent>
 
         <TabsContent value="activities">

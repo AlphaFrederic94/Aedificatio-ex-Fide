@@ -85,7 +85,7 @@ export default function ExamGrading() {
   const fetchExams = async () => {
     setIsLoading(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('auth-token')
       const response = await fetch('/api/exams', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -104,7 +104,7 @@ export default function ExamGrading() {
 
   const loadSubmissionDetails = async (submissionId: string) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('auth-token')
       const response = await fetch(`/api/exam-submissions/${submissionId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })

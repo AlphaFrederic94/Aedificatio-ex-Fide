@@ -92,8 +92,8 @@ export default function ExamInterface() {
 
   const fetchAvailableExams = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/exams/student', {
+      const token = localStorage.getItem('auth-token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exams/student`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       
@@ -110,8 +110,8 @@ export default function ExamInterface() {
   const startExam = async (examId: string) => {
     setIsLoading(true)
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/exam-submissions/start/${examId}`, {
+      const token = localStorage.getItem('auth-token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exam-submissions/start/${examId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -144,8 +144,8 @@ export default function ExamInterface() {
     if (!currentExam) return
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/exam-submissions/answer', {
+      const token = localStorage.getItem('auth-token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exam-submissions/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,6 @@ export default function ExamInterface() {
         },
         body: JSON.stringify({
           submissionId: currentExam.id,
-          questionId,
           ...answer
         })
       })
@@ -175,8 +174,8 @@ export default function ExamInterface() {
 
     setIsLoading(true)
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/exam-submissions/submit/${currentExam.id}`, {
+      const token = localStorage.getItem('auth-token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exam-submissions/submit/${currentExam.id}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       })
