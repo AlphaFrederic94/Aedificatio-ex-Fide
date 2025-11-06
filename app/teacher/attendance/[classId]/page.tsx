@@ -64,7 +64,8 @@ export default function TeacherAttendancePage() {
   const fetchClassDetails = async () => {
     try {
       const headers = getAuthHeaders()
-      const response = await fetch(`/api/classes/${classId}`, { headers })
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${backendUrl}/classes/${classId}`, { headers })
       if (response.ok) {
         const data = await response.json()
         setClassDetails(data)
@@ -77,7 +78,8 @@ export default function TeacherAttendancePage() {
   const fetchStudents = async () => {
     try {
       const headers = getAuthHeaders()
-      const response = await fetch(`/api/enrollments?classId=${classId}`, { headers })
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${backendUrl}/enrollments?classId=${classId}`, { headers })
       if (response.ok) {
         const enrollments = await response.json()
         const studentData = enrollments
@@ -86,7 +88,7 @@ export default function TeacherAttendancePage() {
             id: enrollment.student.id,
             firstName: enrollment.student.firstName,
             lastName: enrollment.student.lastName,
-            studentId: enrollment.student.studentId,
+            studentId: enrollment.student.id,
             present: false
           }))
         setStudents(studentData)
@@ -99,16 +101,17 @@ export default function TeacherAttendancePage() {
   const fetchAttendance = async () => {
     try {
       const headers = getAuthHeaders()
-      const response = await fetch(`/api/attendance/class/${classId}?date=${selectedDate}`, { headers })
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${backendUrl}/attendance/class/${classId}?date=${selectedDate}`, { headers })
       if (response.ok) {
         const data = await response.json()
         setAttendance(data)
-        
+
         // Update student present status based on attendance records
         setStudents(prev => prev.map(student => ({
           ...student,
-          present: data.some((record: AttendanceRecord) => 
-            record.studentId === student.id && record.present
+          present: data.some((record: AttendanceRecord) =>
+            record.studentId === student.id && record.status === 'present'
           )
         })))
       }
@@ -129,6 +132,7 @@ export default function TeacherAttendancePage() {
     setSaving(true)
     try {
       const headers = getAuthHeaders()
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
       const attendanceData = students.map(student => ({
         studentId: student.id,
         classId,
@@ -136,18 +140,22 @@ export default function TeacherAttendancePage() {
         present: student.present
       }))
 
-      const response = await fetch('/api/attendance', {
+      const response = await fetch(`${backendUrl}/attendance`, {
         method: 'POST',
         headers: { ...headers, 'Content-Type': 'application/json' },
         body: JSON.stringify({ attendance: attendanceData })
       })
 
       if (response.ok) {
-        // Show success message
-        console.log('Attendance saved successfully')
+        alert('Attendance saved successfully!')
+        fetchAttendance() // Refresh attendance data
+      } else {
+        const error = await response.json()
+        alert(`Failed to save attendance: ${error.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Failed to save attendance:', error)
+      alert('Failed to save attendance. Please try again.')
     } finally {
       setSaving(false)
     }

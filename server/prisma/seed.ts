@@ -12,8 +12,8 @@ async function main() {
   })
 
   const adminPass = await argon2.hash('admin123')
-  const teacherPass = await argon2.hash('teacher123')
-  const studentPass = await argon2.hash('student123')
+  const teacherPass = await argon2.hash('Hello@94fbr')
+  const studentPass = await argon2.hash('Hello@94fbr')
 
   // Admin
   const admin = await prisma.user.upsert({
@@ -22,11 +22,11 @@ async function main() {
     create: { email: 'admin@school.edu', password: adminPass, name: 'School Administrator', role: 'admin', schoolId: school.id },
   })
 
-  // Teacher 1
+  // Teacher 1 - Ukuqala
   const teacherUser = await prisma.user.upsert({
-    where: { email: 'teacher@school.edu' },
+    where: { email: 'ukuqala@gmail.com' },
     update: { schoolId: school.id },
-    create: { email: 'teacher@school.edu', password: teacherPass, name: 'John Smith', role: 'teacher', schoolId: school.id },
+    create: { email: 'ukuqala@gmail.com', password: teacherPass, name: 'Ukuqala Teacher', role: 'teacher', schoolId: school.id },
   })
   const teacher = await prisma.teacher.upsert({
     where: { userId: teacherUser.id },
@@ -34,9 +34,9 @@ async function main() {
     create: {
       userId: teacherUser.id,
       schoolId: school.id,
-      firstName: 'John',
-      lastName: 'Smith',
-      email: 'teacher@school.edu',
+      firstName: 'Ukuqala',
+      lastName: 'Teacher',
+      email: 'ukuqala@gmail.com',
       phone: '1234567890',
       department: 'Mathematics',
       subject: 'Algebra',
@@ -78,11 +78,11 @@ async function main() {
     },
   })
 
-  // Student 1
+  // Student 1 - Noa Frederic
   const studentUser = await prisma.user.upsert({
-    where: { email: 'student@school.edu' },
+    where: { email: 'noafrederic91@gmail.com' },
     update: { schoolId: school.id },
-    create: { email: 'student@school.edu', password: studentPass, name: 'Jane Doe', role: 'student', schoolId: school.id },
+    create: { email: 'noafrederic91@gmail.com', password: studentPass, name: 'Noa Frederic', role: 'student', schoolId: school.id },
   })
   const student = await prisma.student.upsert({
     where: { userId: studentUser.id },
@@ -90,13 +90,13 @@ async function main() {
     create: {
       userId: studentUser.id,
       schoolId: school.id,
-      firstName: 'Jane',
-      lastName: 'Doe',
-      email: 'student@school.edu',
+      firstName: 'Noa',
+      lastName: 'Frederic',
+      email: 'noafrederic91@gmail.com',
       grade: '10',
       dateOfBirth: new Date('2008-05-05'),
       enrollmentDate: new Date('2023-09-01'),
-      parentName: 'Mary Doe',
+      parentName: 'Mary Frederic',
       parentEmail: 'mary@example.com',
       parentPhone: '1112223333',
       address: '456 Elm St',
@@ -150,7 +150,7 @@ async function main() {
       subject: 'Mathematics',
       grade: '10',
       teacherId: teacher.id,
-      teacherName: 'John Smith',
+      teacherName: 'Ukuqala Teacher',
       room: 'A1',
       schedule: 'Mon/Wed 10:00-11:00',
       startDate: new Date('2024-09-01'),

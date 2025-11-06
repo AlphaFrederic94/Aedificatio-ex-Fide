@@ -92,11 +92,12 @@ export default function ExamCreator() {
 
   const fetchClasses = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/classes', {
+      const token = localStorage.getItem('auth-token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+      const response = await fetch(`${backendUrl}/api/classes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setClasses(data)
@@ -150,10 +151,16 @@ export default function ExamCreator() {
       return
     }
 
+    if (!examData.startDate || !examData.endDate) {
+      toast.error('Please set start and end dates for the exam')
+      return
+    }
+
     setIsLoading(true)
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/exams', {
+      const token = localStorage.getItem('auth-token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
+      const response = await fetch(`${backendUrl}/api/exams`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +186,7 @@ export default function ExamCreator() {
         })
       } else {
         const error = await response.json()
-        toast.error(error.error || 'Failed to create exam')
+        toast.error(error.error || error.details || 'Failed to create exam')
       }
     } catch (error) {
       console.error('Error creating exam:', error)

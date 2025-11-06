@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { StudentLayout } from '@/components/layout/student-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -152,14 +153,14 @@ export default function StudentGradesPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
+      <StudentLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p>Loading your grades...</p>
           </div>
         </div>
-      </div>
+      </StudentLayout>
     )
   }
 
@@ -175,7 +176,8 @@ export default function StudentGradesPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <StudentLayout>
+      <div className="space-y-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">My Grades & Results</h1>
         <p className="text-muted-foreground">View your exam results, grades, and performance analytics</p>
@@ -487,6 +489,7 @@ export default function StudentGradesPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </StudentLayout>
   )
 }

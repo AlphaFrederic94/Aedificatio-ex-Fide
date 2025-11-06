@@ -10,6 +10,7 @@ export const enrollmentsRouter = Router()
 enrollmentsRouter.get('/', requireRole(['admin', 'teacher', 'student']), async (req, res) => {
   const schoolId = (req as any).user.schoolId
   const user = (req as any).user
+  const { classId } = req.query
 
   // Students can see their own enrollments without query parameter
   if (user.role === 'student') {
@@ -36,8 +37,28 @@ enrollmentsRouter.get('/', requireRole(['admin', 'teacher', 'student']), async (
   }
 
   // Admin and teachers can see all enrollments in their school
-  const rows = await enrollmentRepo.listBySchool(schoolId)
-  res.json(rows)
+  // If classId is provided, include student data for attendance purposes
+  try {
+    if (classId) {
+      const rows = await prisma.enrollment.findMany({
+        where: {
+          classId: String(classId),
+          student: { schoolId }
+        },
+        include: {
+          student: true,
+          class: true
+        }
+      })
+      return res.json(rows)
+    }
+
+    const rows = await enrollmentRepo.listBySchool(schoolId)
+    res.json(rows)
+  } catch (e) {
+    console.error('enrollments error', e)
+    return res.status(500).json({ error: 'Failed to load enrollments' })
+  }
 })
 
 // List enrollments for a specific student (students can only access their own)

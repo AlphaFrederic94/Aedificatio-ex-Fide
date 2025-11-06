@@ -199,9 +199,15 @@ router.post('/', requireAuth, async (req, res) => {
     });
 
     res.status(201).json(exam);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating exam:', error);
-    res.status(500).json({ error: 'Failed to create exam' });
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      error: 'Failed to create exam',
+      details: error.message,
+      code: error.code
+    });
   }
 });
 
@@ -340,6 +346,198 @@ router.delete('/:examId', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting exam:', error);
     res.status(500).json({ error: 'Failed to delete exam' });
+  }
+});
+
+// Submit exam (student takes exam)
+router.post('/:examId/submit', requireAuth, async (req, res) => {
+  try {
+    const { examId } = req.params;
+    const user = (req as any).user;
+    const { answers } = req.body;
+
+    if (user.role !== 'student') {
+      return res.status(403).json({ error: 'Only students can submit exams' });
+    }
+
+    // Get exam with questions
+    const exam = await prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        questions: true
+      }
+    });
+
+    if (!exam) {
+      return res.status(404).json({ error: 'Exam not found' });
+    }
+
+    // Check if student is enrolled in the class
+    const enrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: user.studentId,
+        classId: exam.classId
+      }
+    });
+
+    if (!enrollment) {
+      return res.status(403).json({ error: 'You are not enrolled in this class' });
+    }
+
+    // Check if already submitted
+    const existingSubmission = await prisma.examSubmission.findUnique({
+      where: {
+        examId_studentId: {
+          examId,
+          studentId: user.studentId
+        }
+      }
+    });
+
+    if (existingSubmission) {
+      return res.status(400).json({ error: 'You have already submitted this exam' });
+    }
+
+    // Create submission with answers
+    let mcqScore = 0;
+    let structuralScore = 0;
+    let isFullyGraded = true;
+
+    // Pre-calculate scores and prepare answer data
+    const answerData = answers.map((answer: any) => {
+      const question = exam.questions.find(q => q.id === answer.questionId);
+      if (!question) return null;
+
+      let isCorrect = null;
+      let marksAwarded = 0;
+
+      // Auto-grade MCQ
+      if (question.questionType === 'MCQ' && answer.mcqAnswer) {
+        isCorrect = answer.mcqAnswer === question.correctAnswer;
+        marksAwarded = isCorrect ? question.marks : 0;
+        mcqScore += marksAwarded;
+      } else if (question.questionType === 'STRUCTURAL') {
+        // Structural questions need manual grading
+        isFullyGraded = false;
+      }
+
+      return {
+        questionId: answer.questionId,
+        mcqAnswer: answer.mcqAnswer || null,
+        textAnswer: answer.textAnswer || null,
+        isCorrect,
+        marksAwarded
+      };
+    }).filter(Boolean);
+
+    const submission = await prisma.examSubmission.create({
+      data: {
+        examId,
+        studentId: user.studentId,
+        isSubmitted: true,
+        submittedAt: new Date(),
+        answers: {
+          create: answerData
+        },
+        mcqScore,
+        structuralScore,
+        totalScore: mcqScore + structuralScore,
+        isGraded: isFullyGraded
+      },
+      include: {
+        answers: {
+          include: {
+            question: true
+          }
+        }
+      }
+    });
+
+    res.status(201).json(submission);
+  } catch (error: any) {
+    console.error('Error submitting exam:', error);
+    res.status(500).json({ error: 'Failed to submit exam', details: error.message });
+  }
+});
+
+// Grade structural question (teacher)
+router.post('/:examId/grade/:submissionId', requireAuth, async (req, res) => {
+  try {
+    const { examId, submissionId } = req.params;
+    const user = (req as any).user;
+    const { grades } = req.body; // Array of { questionId, marksAwarded, feedback }
+
+    if (user.role !== 'teacher') {
+      return res.status(403).json({ error: 'Only teachers can grade exams' });
+    }
+
+    // Verify teacher owns the exam
+    const exam = await prisma.exam.findUnique({
+      where: { id: examId }
+    });
+
+    if (!exam || exam.teacherId !== user.teacherId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Get submission
+    const submission = await prisma.examSubmission.findUnique({
+      where: { id: submissionId },
+      include: {
+        answers: {
+          include: {
+            question: true
+          }
+        }
+      }
+    });
+
+    if (!submission) {
+      return res.status(404).json({ error: 'Submission not found' });
+    }
+
+    // Update grades for structural questions
+    let structuralScore = 0;
+    for (const grade of grades) {
+      await prisma.studentAnswer.updateMany({
+        where: {
+          submissionId,
+          questionId: grade.questionId
+        },
+        data: {
+          marksAwarded: grade.marksAwarded,
+          feedback: grade.feedback || null
+        }
+      });
+
+      const question = submission.answers.find(a => a.questionId === grade.questionId)?.question;
+      if (question?.questionType === 'STRUCTURAL') {
+        structuralScore += grade.marksAwarded;
+      }
+    }
+
+    // Update submission total score
+    const updatedSubmission = await prisma.examSubmission.update({
+      where: { id: submissionId },
+      data: {
+        structuralScore,
+        totalScore: submission.mcqScore + structuralScore,
+        isGraded: true
+      },
+      include: {
+        answers: {
+          include: {
+            question: true
+          }
+        },
+        student: true
+      }
+    });
+
+    res.json(updatedSubmission);
+  } catch (error: any) {
+    console.error('Error grading exam:', error);
+    res.status(500).json({ error: 'Failed to grade exam', details: error.message });
   }
 });
 

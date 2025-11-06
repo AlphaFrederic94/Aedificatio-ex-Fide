@@ -86,10 +86,11 @@ export default function ExamGrading() {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('auth-token')
-      const response = await fetch('/api/exams', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${backendUrl}/exams`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setExams(data.filter((exam: Exam) => exam.submissions.length > 0))
@@ -137,10 +138,11 @@ export default function ExamGrading() {
 
     setIsSaving(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('auth-token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
       const gradesArray = Object.values(grades)
-      
-      const response = await fetch(`/api/exam-submissions/grade/${selectedSubmission.id}`, {
+
+      const response = await fetch(`${backendUrl}/exams/${selectedSubmission.examId}/grade/${selectedSubmission.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
