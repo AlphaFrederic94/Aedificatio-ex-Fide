@@ -93,8 +93,8 @@ export default function ExamCreator() {
   const fetchClasses = async () => {
     try {
       const token = localStorage.getItem('auth-token')
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
-      const response = await fetch(`${backendUrl}/api/classes`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+      const response = await fetch(`${backendUrl}/classes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -159,8 +159,12 @@ export default function ExamCreator() {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('auth-token')
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000'
-      const response = await fetch(`${backendUrl}/api/exams`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000/api'
+
+      console.log('Creating exam with data:', examData)
+      console.log('Backend URL:', backendUrl)
+
+      const response = await fetch(`${backendUrl}/exams`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,8 +173,17 @@ export default function ExamCreator() {
         body: JSON.stringify(examData)
       })
 
+      console.log('Response status:', response.status)
+
       if (response.ok) {
-        toast.success('Exam created successfully!')
+        const createdExam = await response.json()
+        console.log('Exam created successfully:', createdExam)
+
+        toast.success('🎉 Exam created successfully!', {
+          description: `"${examData.title}" has been created for your class.`,
+          duration: 5000
+        })
+
         // Reset form
         setExamData({
           title: '',
@@ -186,11 +199,17 @@ export default function ExamCreator() {
         })
       } else {
         const error = await response.json()
-        toast.error(error.error || error.details || 'Failed to create exam')
+        console.error('Error response:', error)
+        toast.error(`Failed to create exam: ${error.error || error.details || 'Unknown error'}`, {
+          description: error.details || error.message,
+          duration: 7000
+        })
       }
     } catch (error) {
       console.error('Error creating exam:', error)
-      toast.error('Failed to create exam')
+      toast.error('Failed to create exam. Please check your connection and try again.', {
+        duration: 5000
+      })
     } finally {
       setIsLoading(false)
     }

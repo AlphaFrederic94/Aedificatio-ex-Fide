@@ -5,7 +5,8 @@ import { TeacherLayout } from '@/components/layout/teacher-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ExamCreator from '@/components/teacher/exam-creator'
 import ExamGrading from '@/components/teacher/exam-grading'
-import { FileText, Plus, Trophy } from 'lucide-react'
+import PastExams from '@/components/teacher/past-exams'
+import { FileText, Plus, Trophy, History } from 'lucide-react'
 
 export default function TeacherExamsPage() {
   return (
@@ -17,10 +18,14 @@ export default function TeacherExamsPage() {
         </div>
 
         <Tabs defaultValue="create" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="create" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Create Exam
+            </TabsTrigger>
+            <TabsTrigger value="past" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              My Exams
             </TabsTrigger>
             <TabsTrigger value="grade" className="flex items-center gap-2">
               <Trophy className="h-4 w-4" />
@@ -30,6 +35,10 @@ export default function TeacherExamsPage() {
 
           <TabsContent value="create">
             <ExamCreator />
+          </TabsContent>
+
+          <TabsContent value="past">
+            <PastExams />
           </TabsContent>
 
           <TabsContent value="grade">
