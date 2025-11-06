@@ -52,26 +52,26 @@ export function TeacherSidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-card border-r transform transition-transform duration-200 ease-in-out md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-card to-muted/20 border-r border-border/50 shadow-strong transform transition-transform duration-200 ease-in-out md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 border-b">
+          <div className="p-6 border-b border-border/50 bg-gradient-primary text-white">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <GraduationCap className="h-5 w-5 text-white" />
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h2 className="font-semibold text-lg">Teacher Portal</h2>
-                <p className="text-sm text-muted-foreground">My Classroom</p>
+                <p className="text-sm text-white/80">My Classroom</p>
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {teacherNavItems.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -79,14 +79,19 @@ export function TeacherSidebar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
                     isActive
-                      ? "bg-green-600 text-white"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                      ? "bg-primary text-primary-foreground shadow-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:translate-x-1",
                   )}
                   onClick={() => setIsOpen(false)}
                 >
-                  <item.icon className="h-4 w-4" />
+                  <div className={cn(
+                    "p-1.5 rounded-lg transition-colors",
+                    isActive ? "bg-white/20" : "bg-muted group-hover:bg-primary/10"
+                  )}>
+                    <item.icon className="h-4 w-4" />
+                  </div>
                   {item.label}
                 </Link>
               )

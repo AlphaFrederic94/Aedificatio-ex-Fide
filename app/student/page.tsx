@@ -11,12 +11,15 @@ export default function StudentDashboard() {
   return (
     <StudentLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Student Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Welcome to your learning portal. Track your progress and stay organized with your studies.
-          </p>
+        {/* Header with Gradient */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-8 text-white shadow-strong">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="relative z-10">
+            <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
+            <p className="text-white/90 text-lg">
+              Welcome to your learning portal. Track your progress and stay organized with your studies.
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -51,26 +54,26 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 hover-lift">
                   <div>
                     <div className="font-medium">Mathematics 101</div>
                     <div className="text-sm text-muted-foreground">Room 204 • Mr. Johnson</div>
                   </div>
-                  <div className="text-sm font-medium text-blue-600">9:00 AM</div>
+                  <div className="text-sm font-medium text-primary">9:00 AM</div>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl border border-secondary/20 hover-lift">
                   <div>
                     <div className="font-medium">Physics 201</div>
                     <div className="text-sm text-muted-foreground">Lab 301 • Dr. Smith</div>
                   </div>
-                  <div className="text-sm font-medium text-green-600">11:00 AM</div>
+                  <div className="text-sm font-medium text-secondary">11:00 AM</div>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl border border-accent/20 hover-lift">
                   <div>
                     <div className="font-medium">World History</div>
                     <div className="text-sm text-muted-foreground">Room 105 • Ms. Davis</div>
                   </div>
-                  <div className="text-sm font-medium text-purple-600">2:00 PM</div>
+                  <div className="text-sm font-medium text-accent">2:00 PM</div>
                 </div>
               </div>
             </CardContent>

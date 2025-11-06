@@ -10,12 +10,15 @@ export default function TeacherDashboard() {
   return (
     <TeacherLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Welcome to your classroom management portal. Monitor your classes and student progress.
-          </p>
+        {/* Header with Gradient */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-8 text-white shadow-strong">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="relative z-10">
+            <h1 className="text-4xl font-bold mb-2">Teacher Dashboard</h1>
+            <p className="text-white/90 text-lg">
+              Welcome to your classroom management portal. Monitor your classes and student progress.
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}

@@ -104,48 +104,54 @@ export function AdminStatsCards() {
       value: stats.totalStudents,
       subtitle: `${stats.activeStudents} active`,
       icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      borderColor: "border-primary/20",
     },
     {
       title: "Total Teachers",
       value: stats.totalTeachers,
       subtitle: `${stats.activeTeachers} active`,
       icon: GraduationCap,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-secondary",
+      bgColor: "bg-secondary/10",
+      borderColor: "border-secondary/20",
     },
     {
       title: "Total Classes",
       value: stats.totalClasses,
       subtitle: `${stats.activeClasses} active`,
       icon: BookOpen,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-accent",
+      bgColor: "bg-accent/10",
+      borderColor: "border-accent/20",
     },
     {
       title: "Enrollment Rate",
       value: `${stats.enrollmentRate}%`,
       subtitle: "Student capacity",
       icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      borderColor: "border-primary/20",
     },
     {
       title: "Teacher Utilization",
       value: `${stats.teacherUtilization}%`,
       subtitle: "Teachers with classes",
       icon: UserCheck,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
+      color: "text-secondary",
+      bgColor: "bg-secondary/10",
+      borderColor: "border-secondary/20",
     },
     {
       title: "System Health",
       value: "Excellent",
       subtitle: "All systems operational",
       icon: AlertCircle,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
+      color: "text-accent",
+      bgColor: "bg-accent/10",
+      borderColor: "border-accent/20",
     },
   ]
 
@@ -170,16 +176,16 @@ export function AdminStatsCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {statCards.map((card, index) => (
-        <Card key={index} className="hover:shadow-md transition-shadow">
+        <Card key={index} className={`hover-lift shadow-soft border ${card.borderColor} bg-gradient-to-br ${card.bgColor} to-transparent`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
-            <div className={`p-2 rounded-lg ${card.bgColor}`}>
-              <card.icon className={`h-4 w-4 ${card.color}`} />
+            <div className={`p-3 rounded-xl ${card.bgColor} border ${card.borderColor}`}>
+              <card.icon className={`h-5 w-5 ${card.color}`} />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{card.value}</div>
-            <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+            <div className={`text-3xl font-bold ${card.color} mb-1`}>{card.value}</div>
+            <p className="text-sm text-muted-foreground">{card.subtitle}</p>
           </CardContent>
         </Card>
       ))}

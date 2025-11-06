@@ -56,13 +56,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-mesh bg-dot-pattern">
       <AdminSidebar />
       <main className="md:ml-64 min-h-screen">
         {/* Header with Blockchain Badge */}
-        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-soft">
           <div className="flex items-center justify-between p-4">
-            <h1 className="text-xl font-semibold">School Management System</h1>
+            <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">School Management System</h1>
             <BlockchainBadge />
           </div>
         </div>
