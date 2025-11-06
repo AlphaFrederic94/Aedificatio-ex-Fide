@@ -3,6 +3,7 @@ import { StudentStats } from "@/components/student/student-stats"
 import { MyCourses } from "@/components/student/my-courses"
 import { UpcomingAssignments } from "@/components/student/upcoming-assignments"
 import { GradeOverview } from "@/components/student/grade-overview"
+import { UserActivityWidget } from "@/components/blockchain/user-activity-widget"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Bell } from "lucide-react"
 
@@ -34,6 +35,9 @@ export default function StudentDashboard() {
           {/* Grade Overview */}
           <GradeOverview />
         </div>
+
+        {/* Blockchain Activity Widget */}
+        <UserActivityWidget />
 
         {/* Additional Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

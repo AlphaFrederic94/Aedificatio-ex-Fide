@@ -1,6 +1,7 @@
 import { AdminLayout } from "@/components/layout/admin-layout"
 import { AdminStatsCards } from "@/components/admin/admin-stats-cards"
 import { AdminQuickActions } from "@/components/admin/admin-quick-actions"
+import { BlockchainStatsWidget } from "@/components/blockchain/blockchain-stats-widget"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart3 } from "lucide-react"
 
@@ -21,6 +22,9 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <AdminQuickActions />
+
+        {/* Blockchain Security Widget */}
+        <BlockchainStatsWidget />
 
         {/* Recent Activity Summary */}
         <Card>

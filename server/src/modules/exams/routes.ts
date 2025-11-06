@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../auth/middleware';
+import { appendBlock } from '../audit/blockchain';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -198,6 +199,15 @@ router.post('/', requireAuth, async (req, res) => {
       }
     });
 
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.create',
+      actorId: user.id,
+      entity: 'exam',
+      entityId: exam.id,
+      payload: { title, classId, examType, totalMarks, questionCount: questions.length }
+    });
+
     res.status(201).json(exam);
   } catch (error: any) {
     console.error('Error creating exam:', error);
@@ -313,6 +323,15 @@ router.put('/:examId', requireAuth, async (req, res) => {
       }
     });
 
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.update',
+      actorId: user.id,
+      entity: 'exam',
+      entityId: examId,
+      payload: { updates: Object.keys(req.body) }
+    });
+
     res.json(updatedExam);
   } catch (error) {
     console.error('Error updating exam:', error);
@@ -340,6 +359,15 @@ router.delete('/:examId', requireAuth, async (req, res) => {
 
     await prisma.exam.delete({
       where: { id: examId }
+    });
+
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.delete',
+      actorId: user.id,
+      entity: 'exam',
+      entityId: examId,
+      payload: { title: exam.title }
     });
 
     res.json({ message: 'Exam deleted successfully' });

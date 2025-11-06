@@ -2,6 +2,7 @@ import { TeacherLayout } from "@/components/layout/teacher-layout"
 import { TeacherStats } from "@/components/teacher/teacher-stats"
 import { MyClasses } from "@/components/teacher/my-classes"
 import { RecentActivities } from "@/components/teacher/recent-activities"
+import { UserActivityWidget } from "@/components/blockchain/user-activity-widget"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, MessageSquare } from "lucide-react"
 
@@ -32,6 +33,8 @@ export default function TeacherDashboard() {
 
           {/* Quick Info */}
           <div className="space-y-6">
+            {/* Blockchain Activity Widget */}
+            <UserActivityWidget />
             {/* Today's Schedule */}
             <Card>
               <CardHeader>

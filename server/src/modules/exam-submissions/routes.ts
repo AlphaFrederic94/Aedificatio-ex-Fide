@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../auth/middleware';
+import { appendBlock } from '../audit/blockchain';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -87,6 +88,15 @@ router.post('/start/:examId', requireAuth, async (req, res) => {
           }
         }
       }
+    });
+
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.start',
+      actorId: user.id,
+      entity: 'exam_submission',
+      entityId: submission.id,
+      payload: { examId, studentId: user.studentId }
     });
 
     res.status(201).json(submission);
@@ -237,6 +247,15 @@ router.post('/submit/:submissionId', requireAuth, async (req, res) => {
       }
     });
 
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.submit',
+      actorId: user.id,
+      entity: 'exam_submission',
+      entityId: submissionId,
+      payload: { examId: submission.examId, totalScore, mcqScore, structuralScore }
+    });
+
     res.json(updatedSubmission);
   } catch (error) {
     console.error('Error submitting exam:', error);
@@ -365,6 +384,20 @@ router.post('/grade/:submissionId', requireAuth, async (req, res) => {
           include: { question: true },
           orderBy: { question: { order: 'asc' } }
         }
+      }
+    });
+
+    // Log to blockchain
+    await appendBlock({
+      action: 'exam.grade',
+      actorId: user.id,
+      entity: 'exam_submission',
+      entityId: submissionId,
+      payload: {
+        examId: submission.exam.id,
+        studentId: submission.studentId,
+        totalScore,
+        gradedQuestions: grades.length
       }
     });
 

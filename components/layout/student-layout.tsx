@@ -4,6 +4,7 @@ import type React from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { StudentSidebar } from "./student-sidebar"
 import { LoginForm } from "@/components/login-form"
+import { BlockchainBadge } from "@/components/blockchain/blockchain-badge"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
@@ -57,7 +58,14 @@ export function StudentLayout({ children }: StudentLayoutProps) {
     <div className="min-h-screen bg-background">
       <StudentSidebar />
       <main className="md:ml-64 min-h-screen">
-        <div className="p-6 pt-16 md:pt-6">{children}</div>
+        {/* Header with Blockchain Badge */}
+        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex items-center justify-between p-4">
+            <h1 className="text-xl font-semibold">School Management System</h1>
+            <BlockchainBadge />
+          </div>
+        </div>
+        <div className="p-6">{children}</div>
       </main>
     </div>
   )
