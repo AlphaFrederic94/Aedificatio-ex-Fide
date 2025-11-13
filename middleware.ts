@@ -22,8 +22,12 @@ const protectedRoutes = {
   "/api/assignments/": ["admin", "teacher", "student"],
   "/api/messages": ["admin", "teacher", "student"],
   "/api/messages/": ["admin", "teacher", "student"],
+  "/api/submissions": ["admin", "teacher", "student"],
+  "/api/submissions/": ["admin", "teacher", "student"],
   "/api/reports": ["admin"],
   "/api/reports/": ["admin"],
+  "/api/audit": ["admin"],
+  "/api/audit/": ["admin"],
 }
 
 export async function middleware(request: NextRequest) {

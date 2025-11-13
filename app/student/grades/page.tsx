@@ -86,35 +86,41 @@ export default function StudentGradesPage() {
         return
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exams/student`, {
+      // Fetch all student submissions (including past exams)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exams/student/submissions/all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
       if (response.ok) {
-        const exams = await response.json()
-        // Filter only exams with submissions (completed exams)
-        const completedExams = exams.filter((exam: any) => exam.submissions.length > 0)
-
-        // Fetch detailed results for each completed exam
-        const detailedResults = await Promise.all(
-          completedExams.map(async (exam: any) => {
-            const submissionId = exam.submissions[0].id
-            const detailResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/exam-submissions/${submissionId}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            })
-
-            if (detailResponse.ok) {
-              const detailData = await detailResponse.json()
-              return {
-                ...detailData,
-                exam: exam
-              }
+        const submissions = await response.json()
+        // Map submissions to the ExamResult format
+        const examResults = submissions.map((submission: any) => ({
+          id: submission.id,
+          examId: submission.examId,
+          studentId: submission.studentId,
+          startedAt: submission.startedAt,
+          submittedAt: submission.submittedAt,
+          isSubmitted: submission.isSubmitted,
+          totalScore: submission.totalScore,
+          mcqScore: submission.mcqScore,
+          structuralScore: submission.structuralScore,
+          isGraded: submission.isGraded,
+          exam: {
+            id: submission.exam.id,
+            title: submission.exam.title,
+            description: submission.exam.description,
+            totalMarks: submission.exam.totalMarks,
+            passingMarks: submission.exam.passingMarks,
+            duration: submission.exam.duration,
+            class: {
+              name: submission.exam.class.name,
+              subject: submission.exam.class.subject
             }
-            return null
-          })
-        )
+          },
+          answers: submission.answers
+        }))
 
-        setExamResults(detailedResults.filter(result => result !== null))
+        setExamResults(examResults)
       } else {
         toast.error('Failed to fetch exam results')
       }

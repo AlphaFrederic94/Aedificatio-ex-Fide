@@ -40,6 +40,44 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+// Get all student submissions (for grades page) - MUST come before /student route
+router.get('/student/submissions/all', requireAuth, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    
+    if (user.role !== 'student') {
+      return res.status(403).json({ error: 'Only students can view their submissions' });
+    }
+
+    // Get all submissions for this student
+    const submissions = await prisma.examSubmission.findMany({
+      where: { studentId: user.studentId },
+      include: {
+        exam: {
+          include: {
+            class: true,
+            questions: {
+              orderBy: { order: 'asc' }
+            }
+          }
+        },
+        answers: {
+          include: { question: true },
+          orderBy: { question: { order: 'asc' } }
+        }
+      },
+      orderBy: {
+        submittedAt: 'desc'
+      }
+    });
+
+    res.json(submissions);
+  } catch (error) {
+    console.error('Error fetching student submissions:', error);
+    res.status(500).json({ error: 'Failed to fetch student submissions' });
+  }
+});
+
 // Get exams for a specific class
 router.get('/class/:classId', requireAuth, async (req, res) => {
   try {
@@ -74,7 +112,7 @@ router.get('/class/:classId', requireAuth, async (req, res) => {
   }
 });
 
-// Get available exams for a student
+// Get available exams for a student (active exams only)
 router.get('/student', requireAuth, async (req, res) => {
   try {
     const user = (req as any).user;
