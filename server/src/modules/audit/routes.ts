@@ -10,6 +10,13 @@ import {
   getActorActivity,
   getRecentBlocks
 } from './blockchain'
+import {
+  detectTamperedBlocks,
+  repairBlock,
+  autoRepairAll,
+  getRepairStatus,
+  verifyRepair
+} from './auto-repair'
 
 export const auditRouter = Router()
 
@@ -136,6 +143,69 @@ auditRouter.get('/recent', requireRole(['admin']), async (req, res) => {
   } catch (error) {
     console.error('Get recent blocks error:', error)
     res.status(500).json({ error: 'Failed to get recent blocks' })
+  }
+})
+
+// Detect tampered blocks (admin only)
+auditRouter.get('/detect-tampering', requireRole(['admin']), async (_req, res) => {
+  try {
+    const tampered = await detectTamperedBlocks()
+    res.json({
+      tamperedBlocks: tampered,
+      count: tampered.length,
+      status: tampered.length === 0 ? 'healthy' : 'compromised'
+    })
+  } catch (error) {
+    console.error('Tampering detection error:', error)
+    res.status(500).json({ error: 'Failed to detect tampering' })
+  }
+})
+
+// Get repair status (admin only)
+auditRouter.get('/repair-status', requireRole(['admin']), async (_req, res) => {
+  try {
+    const status = await getRepairStatus()
+    res.json(status)
+  } catch (error) {
+    console.error('Repair status error:', error)
+    res.status(500).json({ error: 'Failed to get repair status' })
+  }
+})
+
+// Repair a single block (admin only)
+auditRouter.post('/repair-block/:index', requireRole(['admin']), async (req, res) => {
+  try {
+    const index = parseInt(req.params.index)
+    const result = await repairBlock(index)
+
+    if (result.status === 'failed') {
+      return res.status(400).json(result)
+    }
+
+    res.json(result)
+  } catch (error) {
+    console.error('Block repair error:', error)
+    res.status(500).json({ error: 'Failed to repair block' })
+  }
+})
+
+// Auto-repair all tampered blocks (admin only)
+auditRouter.post('/auto-repair', requireRole(['admin']), async (_req, res) => {
+  try {
+    const results = await autoRepairAll()
+
+    // Verify repair was successful
+    const verified = await verifyRepair()
+
+    res.json({
+      repaired: results.length,
+      results,
+      verified,
+      status: verified ? 'success' : 'partial'
+    })
+  } catch (error) {
+    console.error('Auto-repair error:', error)
+    res.status(500).json({ error: 'Failed to auto-repair blockchain' })
   }
 })
 
